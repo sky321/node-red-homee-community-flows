@@ -1,0 +1,454 @@
+[
+    {
+        "id": "39fe227c.afd74e",
+        "type": "function",
+        "z": "92bbd3bd.5be8f",
+        "name": "Geräte automatisch ersetzen ",
+        "func": "var nodeold = 0;\nvar nodenew = 0;\nvar attribute = global.get(\"homee.attributes\");\nvar nodes = global.get(\"homee.nodes\");\n\nvar change = \"\";\nvar res = global.get(\"reschange\");\nvar req = global.get(\"reqchange\");\n\nif (msg.payload.auto === \"start\"){\n    \n    var hg = global.get(\"homee.homeegrams\");\n    hg.forEach(function(hgs){\n     nodes.forEach(function(nodei){\n        if(nodei.protocol == msg.payload.protocol && nodei.state == msg.payload.stateold) {\n            nodeold = nodei.id\n            nodes.forEach(function(noden){\n                if(noden.name === nodei.name && noden.state == msg.payload.statenew && noden.protocol == msg.payload.protocol) {\n                        nodenew = noden.id\n                        hgs.triggers.attribute_triggers.forEach(function(trigger){\n                             if (trigger.node_id == nodeold){\n                                var typeold = attribute.find(attri => attri.id === trigger.attribute_id );\n                                var typenew = nodes.find(node => node.id === nodenew );\n                                typenew.attributes.forEach(function(attritype){\n                                    if (attritype.type == typeold.type && attritype.instance == typeold.instance){\n                                        node.send({payload: \"PUT:homeegrams/\"+trigger.homeegram_id+\"/triggers/\"+trigger.id+\"?attribute_id=\"+attritype.id});\n                                        node.send({payload: \"PUT:homeegrams/\"+trigger.homeegram_id+\"/triggers/\"+trigger.id+\"?node_id=\"+nodenew})\n                                        change = change+\"Bei dem Homeegramm \"+hgs.name+\" wurde der Auslöser durch das Gerät \"+typenew.name+\" ersetzt\"+\"\\n\\n\";}\n                                })\n                            }\n                        })\n                        \n                        hgs.conditions.attribute_conditions.forEach(function(conditions){\n                             if (conditions.node_id == nodeold ){\n                                var typeold = attribute.find(attri => attri.id === conditions.attribute_id );\n                                var typenew = nodes.find(node => node.id === nodenew );\n                                typenew.attributes.forEach(function(attritype){\n                                    if (attritype.type == typeold.type && attritype.instance == typeold.instance){\n                                        node.send({payload: \"PUT:homeegrams/\"+conditions.homeegram_id+\"/conditions/\"+conditions.id+\"?node_id=\"+nodenew+\"&attribute_id=\"+attritype.id})\n                                    \n                                        change = change+\"Bei dem Homeegramm \"+hgs.name+\" wurde der Bedingung durch das Gerät \"+typenew.name+\" ersetzt\"+\"\\n\\n\";\n                                    }\n                                })\n                            }\n                        })\n                        hgs.actions.attribute_actions.forEach(function(action){\n                            if (action.node_id == nodeold){\n                                var typeold = attribute.find(attri => attri.id === action.attribute_id );\n                                var typenew = nodes.find(node => node.id === nodenew );\n                                typenew.attributes.forEach(function(attritype){\n                                    if (attritype.type == typeold.type && attritype.instance == typeold.instance){\n                                        node.send({payload: \"PUT:homeegrams/\"+action.homeegram_id+\"/actions/\"+action.id+\"?node_id=\"+nodenew+\"&attribute_id=\"+attritype.id})\n                                        change = change+\"Bei dem Homeegramm \"+hgs.name+\" wurde der Aktion durch das Gerät \"+typenew.name+\" ersetzt\"+\"\\n\\n\";}\n                                })\n                            }\n                        })\n                }\n            })\n        }\n      })\n    })\nnode.send([null,{payload:{change:decodeURIComponent(change),old_id:nodeold,new_id:nodenew},res:res,req:req}])\n\n}\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1070,
+        "y": 840,
+        "wires": [
+            [
+                "d74803af.c51c48"
+            ],
+            [
+                "250614d.138216c",
+                "cc87e620.9b7fb"
+            ]
+        ]
+    },
+    {
+        "id": "76d88f4e.bfbee",
+        "type": "delay",
+        "z": "92bbd3bd.5be8f",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 600,
+        "y": 840,
+        "wires": [
+            [
+                "39fe227c.afd74e"
+            ]
+        ]
+    },
+    {
+        "id": "ca57b1f5.c8c4b",
+        "type": "homeeApi",
+        "z": "92bbd3bd.5be8f",
+        "homee": "",
+        "name": "homeeApi",
+        "messageTypeFilter": [],
+        "nodeFilter": "",
+        "attributeFilter": "",
+        "x": 930,
+        "y": 800,
+        "wires": [
+            [
+                "1e8d4d8a.14c3e2"
+            ]
+        ]
+    },
+    {
+        "id": "bc19d08.97e75b",
+        "type": "delay",
+        "z": "92bbd3bd.5be8f",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 600,
+        "y": 800,
+        "wires": [
+            [
+                "a9a961ca.6d0798"
+            ]
+        ]
+    },
+    {
+        "id": "a9a961ca.6d0798",
+        "type": "function",
+        "z": "92bbd3bd.5be8f",
+        "name": "",
+        "func": "msg.payload = \"get:homeegrams\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 760,
+        "y": 800,
+        "wires": [
+            [
+                "ca57b1f5.c8c4b"
+            ]
+        ]
+    },
+    {
+        "id": "a130206a.75975",
+        "type": "http in",
+        "z": "92bbd3bd.5be8f",
+        "name": "",
+        "url": "/change",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 130,
+        "y": 760,
+        "wires": [
+            [
+                "2e1f57f3.63ed78"
+            ]
+        ]
+    },
+    {
+        "id": "2e1f57f3.63ed78",
+        "type": "template",
+        "z": "92bbd3bd.5be8f",
+        "name": "",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "<!DOCTYPE html>\n\n<html>\n    <script>\n    \n    function submitMessage() {\n      alert(\"Wert gespeichert\");\n      setTimeout(function(){ document.location.reload(true; }, 500);   \n    }\n  </script>\n<body>\n    <center>\n   <h1>** Geräte ID in den Homeegrammen manuell tauschen**</h1>\n<form   method = \"POST\" >\n    \n    <input type=\"number\" name=\"old_id\" placeholder=\"alte Node ID\" > {{payload.old_id}}\n    <br><br>\n    <input type=\"number\" name=\"new_id\" placeholder=\"Neue Node ID\"> {{payload.new_id}}\n    <br><br>\n    <br><br>\n    <input type=\"checkbox\" id=\"true\" name=\"yes\" value=\"1\">\n    <label for=\"true\"> Änderungen bestätigen </label><br>\n    <label for=\"test\"> Änderungen erst testen ohne an homee zu senden </label><br>\n    <select id=\"test\" name=\"test\">\n    <option value=\"1\">ja</option>\n    <option value=\"0\">nein</option>\n    </select>\n  <br><br>\n    <button type=\"submit\" onclick=\"submitMessage()\">Geräte tauschen</button>\n</form>\n<br><br>\n<a href=\"https://hom.ee\"><strong>homee Website</strong></a>\n<br><br>\n<a href=\"https://community.hom.ee/t/geraete-ersetzen-in-hgs/35555\"><strong>homee Community Thread</strong></a>\n<br><br>\n<textarea name=\"message\" style=\"color:red;font-size:120%;\" rows=\"10\" cols=\"60\">{{payload.change}}</textarea>\n<br><br>\n<h1>** Geräte ID in den Homeegrammen automatisch tauschen**</h1>\n<br><br>\n<form   method = \"POST\" >\n<label for=\"protocol\">Wähle ein Protocol aus:</label>\n  <select id=\"protocol\" name=\"protocol\">\n    <option value=\"3\">Enocean</option>\n    <option value=\"1\">Zwave</option>\n    <option value=\"2\">Zigbee</option>\n    <option value=\"21\">Exthomee (vhih)</option>\n  </select>\n  <br><br>\n<label for=\"stateold\">Wähle den Status des alten Nodes aus:</label>\n  <select id=\"stateold\" name=\"stateold\">\n    <option value=\"1\">erreichbar</option>\n    <option value=\"2\">nicht erreichbar</option>\n    <option value=\"12\">aktualisiert </option>\n    <option value=\"8\">Host nicht erreichbar</option>\n  </select> \n   <br><br>\n<label for=\"statenew\">Wähle den Status des neue Nodes aus:</label>\n  <select id=\"statenew\" name=\"statenew\">\n    <option value=\"1\">erreichbar</option>\n    <option value=\"2\">nicht erreichbar</option>\n    <option value=\"12\">aktualisiert </option>\n    <option value=\"8\">Host nicht erreichbar</option>\n  </select> \n  <br><br>\n  <input type=\"checkbox\" id=\"true\" name=\"yes\" value=\"1\">\n    <label for=\"true\"> Änderungen bestätigen </label><br>\n    <input type=\"checkbox\" id=\"auto\" name=\"auto\" value=\"start\">\n    <label for=\"auto\"> Automatisches ändern bestätigen </label><br>\n   <label for=\"test\"> Änderungen erst testen ohne an homee zu senden </label><br>\n    <select id=\"test\" name=\"test\">\n    <option value=\"1\">ja</option>\n    <option value=\"0\">nein</option>\n    </select>\n  <br><br>\n  <input type=\"submit\">\n  </form>\n<iframe width=\"420\" height=\"345\" src=\"https://www.youtube.com/embed/HamaS_jBWw4\">\n</iframe>\n</center>\n</body>\n\n</html>",
+        "output": "str",
+        "x": 280,
+        "y": 760,
+        "wires": [
+            [
+                "5fbf3bef.e1b35c"
+            ]
+        ]
+    },
+    {
+        "id": "5fbf3bef.e1b35c",
+        "type": "http response",
+        "z": "92bbd3bd.5be8f",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 410,
+        "y": 760,
+        "wires": []
+    },
+    {
+        "id": "60f51ee9.2347a",
+        "type": "http in",
+        "z": "92bbd3bd.5be8f",
+        "name": "",
+        "url": "/change",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 140,
+        "y": 820,
+        "wires": [
+            [
+                "3f04560c.a83a4a",
+                "2825c1b.61fe33e"
+            ]
+        ]
+    },
+    {
+        "id": "2e4df018.8d71f8",
+        "type": "template",
+        "z": "92bbd3bd.5be8f",
+        "name": "",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "get:all",
+        "output": "str",
+        "x": 580,
+        "y": 760,
+        "wires": [
+            [
+                "ca57b1f5.c8c4b"
+            ]
+        ]
+    },
+    {
+        "id": "2825c1b.61fe33e",
+        "type": "change",
+        "z": "92bbd3bd.5be8f",
+        "name": "",
+        "rules": [
+            {
+                "t": "move",
+                "p": "payload.old_id",
+                "pt": "msg",
+                "to": "old_id",
+                "tot": "global"
+            },
+            {
+                "t": "move",
+                "p": "payload.new_id",
+                "pt": "msg",
+                "to": "new_id",
+                "tot": "global"
+            },
+            {
+                "t": "move",
+                "p": "res",
+                "pt": "msg",
+                "to": "reschange",
+                "tot": "global"
+            },
+            {
+                "t": "move",
+                "p": "req",
+                "pt": "msg",
+                "to": "reqchange",
+                "tot": "global"
+            },
+            {
+                "t": "move",
+                "p": "payload.test",
+                "pt": "msg",
+                "to": "homeechangetest",
+                "tot": "global"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 470,
+        "y": 880,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1e8d4d8a.14c3e2",
+        "type": "function",
+        "z": "92bbd3bd.5be8f",
+        "name": "Geräte ersetzen ",
+        "func": "var nodeold = parseFloat(global.get(\"old_id\")); // zu ersetzende Node ID\nvar nodenew = parseFloat(global.get(\"new_id\")); // neue Node ID \nvar attribute = global.get(\"homee.attributes\");\nvar nodes = global.get(\"homee.nodes\");\nvar change = \"\";\nvar res = global.get(\"reschange\");\nvar req = global.get(\"reqchange\");\n\nif (Object.keys(msg.payload)[0] === \"homeegrams\"){\nvar hg = msg.payload.homeegrams;\nhg.forEach(function(hgs){\n    hgs.triggers.attribute_triggers.forEach(function(trigger){\n        if (trigger.node_id == nodeold){\n            var typeold = attribute.find(attri => attri.id === trigger.attribute_id );\n            var typenew = nodes.find(node => node.id === nodenew );\n            typenew.attributes.forEach(function(attritype){\n                if (attritype.type == typeold.type && attritype.instance == typeold.instance){\n        node.send({payload: \"PUT:homeegrams/\"+trigger.homeegram_id+\"/triggers/\"+trigger.id+\"?attribute_id=\"+attritype.id});\n        node.send({payload: \"PUT:homeegrams/\"+trigger.homeegram_id+\"/triggers/\"+trigger.id+\"?node_id=\"+nodenew})\n        change = change+\"Bei dem Homeegramm \"+hgs.name+\" wurde der Auslöser durch das Gerät \"+typenew.name+\" ersetzt\"+\"\\n\\n\";}\n            })\n        }\n    })\n    \n    hgs.conditions.attribute_conditions.forEach(function(conditions){\n        if (conditions.node_id == nodeold ){\n            var typeold = attribute.find(attri => attri.id === conditions.attribute_id );\n            var typenew = nodes.find(node => node.id === nodenew );\n            typenew.attributes.forEach(function(attritype){\n                if (attritype.type == typeold.type && attritype.instance == typeold.instance){\n        node.send({payload: \"PUT:homeegrams/\"+conditions.homeegram_id+\"/conditions/\"+conditions.id+\"?node_id=\"+nodenew+\"&attribute_id=\"+attritype.id})\n          change = change+\"Bei dem Homeegramm \"+hgs.name+\" wurde der Bedingung durch das Gerät \"+typenew.name+\" ersetzt\"+\"\\n\\n\";}\n            })\n        }\n    })\n    hgs.actions.attribute_actions.forEach(function(action){\n        if (action.node_id == nodeold){\n            var typeold = attribute.find(attri => attri.id === action.attribute_id );\n            var typenew = nodes.find(node => node.id === nodenew );\n            typenew.attributes.forEach(function(attritype){\n                if (attritype.type == typeold.type && attritype.instance == typeold.instance){\n        node.send({payload: \"PUT:homeegrams/\"+action.homeegram_id+\"/actions/\"+action.id+\"?node_id=\"+nodenew+\"&attribute_id=\"+attritype.id})\n          change = change+\"Bei dem Homeegramm \"+hgs.name+\" wurde der Aktion durch das Gerät \"+typenew.name+\" ersetzt\"+\"\\n\\n\";}\n            })\n        }\n    })\n    \n})\n\n    node.send([null,{payload:{change:decodeURIComponent(change),old_id:nodeold,new_id:nodenew},res:res,req:req}])\n}\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1110,
+        "y": 800,
+        "wires": [
+            [
+                "d74803af.c51c48"
+            ],
+            [
+                "250614d.138216c"
+            ]
+        ]
+    },
+    {
+        "id": "da356ed4.415a68",
+        "type": "switch",
+        "z": "92bbd3bd.5be8f",
+        "name": "",
+        "property": "payload.yes",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 430,
+        "y": 800,
+        "wires": [
+            [
+                "bc19d08.97e75b",
+                "2e4df018.8d71f8"
+            ]
+        ]
+    },
+    {
+        "id": "3f04560c.a83a4a",
+        "type": "switch",
+        "z": "92bbd3bd.5be8f",
+        "name": "",
+        "property": "payload.auto",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "else"
+            },
+            {
+                "t": "eq",
+                "v": "start",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 290,
+        "y": 820,
+        "wires": [
+            [
+                "da356ed4.415a68"
+            ],
+            [
+                "83d6db05.d87cb"
+            ]
+        ]
+    },
+    {
+        "id": "83d6db05.d87cb",
+        "type": "switch",
+        "z": "92bbd3bd.5be8f",
+        "name": "",
+        "property": "payload.yes",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 430,
+        "y": 840,
+        "wires": [
+            [
+                "76d88f4e.bfbee",
+                "2e4df018.8d71f8"
+            ]
+        ]
+    },
+    {
+        "id": "8776db1c.b9861",
+        "type": "link in",
+        "z": "92bbd3bd.5be8f",
+        "name": "",
+        "links": [
+            "7e9a260e.a56818"
+        ],
+        "x": 795,
+        "y": 760,
+        "wires": [
+            [
+                "ca57b1f5.c8c4b"
+            ]
+        ]
+    },
+    {
+        "id": "7e9a260e.a56818",
+        "type": "link out",
+        "z": "92bbd3bd.5be8f",
+        "name": "",
+        "links": [
+            "8776db1c.b9861"
+        ],
+        "x": 1355,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "abbf7ba8.818e1",
+        "type": "link in",
+        "z": "92bbd3bd.5be8f",
+        "name": "",
+        "links": [
+            "250614d.138216c"
+        ],
+        "x": 175,
+        "y": 720,
+        "wires": [
+            [
+                "2e1f57f3.63ed78"
+            ]
+        ]
+    },
+    {
+        "id": "250614d.138216c",
+        "type": "link out",
+        "z": "92bbd3bd.5be8f",
+        "name": "",
+        "links": [
+            "abbf7ba8.818e1"
+        ],
+        "x": 1275,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "d74803af.c51c48",
+        "type": "switch",
+        "z": "92bbd3bd.5be8f",
+        "name": "",
+        "property": "homeechangetest",
+        "propertyType": "global",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "0",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 1290,
+        "y": 800,
+        "wires": [
+            [
+                "cc87e620.9b7fb"
+            ],
+            [
+                "7e9a260e.a56818"
+            ]
+        ]
+    },
+    {
+        "id": "cc87e620.9b7fb",
+        "type": "debug",
+        "z": "92bbd3bd.5be8f",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1220,
+        "y": 740,
+        "wires": []
+    }
+]
