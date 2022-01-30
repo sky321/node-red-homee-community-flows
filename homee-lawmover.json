@@ -1,0 +1,119 @@
+[
+    {
+        "id": "e312f3e4.1c445",
+        "type": "http request",
+        "z": "7831de18.bde6e",
+        "name": "",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://192.168.178.50:2345/status",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 310,
+        "y": 300,
+        "wires": [
+            [
+                "b9dbb538.c94238"
+            ]
+        ]
+    },
+    {
+        "id": "5d44e6d6.a0d548",
+        "type": "inject",
+        "z": "7831de18.bde6e",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "10",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 100,
+        "y": 300,
+        "wires": [
+            [
+                "e312f3e4.1c445"
+            ]
+        ]
+    },
+    {
+        "id": "b9dbb538.c94238",
+        "type": "function",
+        "z": "7831de18.bde6e",
+        "name": "",
+        "func": "if(msg.payload.mowerStatus ===\"OK_CUTTING\"){return {payload:{\"attribute\":{\"id\":194,\"value\":1}}}}\nelse if((msg.payload.mowerStatus ===\"PARKED_TIMER\")||(msg.payload.mowerStatus ===\"PARKED_PARKED_SELECTED\")){return{payload:{\"attribute\":{\"id\":194,\"value\":0}}}}\nreturn \n\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 500,
+        "y": 300,
+        "wires": [
+            [
+                "fddba93.86f8e58"
+            ]
+        ]
+    },
+    {
+        "id": "fddba93.86f8e58",
+        "type": "homeeDevice",
+        "z": "7831de18.bde6e",
+        "virtual-homee": "",
+        "name": "194",
+        "nodeId": "194",
+        "profile": "10",
+        "icon": "default",
+        "attributes": "[{\"id\":194,\"node_id\":194,\"instance\":0,\"minimum\":0,\"maximum\":1,\"current_value\":0,\"target_value\":0,\"last_value\":0,\"unit\":\"n%2Fa\",\"step_value\":1,\"editable\":1,\"type\":1,\"state\":1,\"last_changed\":1573065521,\"changed_by\":1,\"changed_by_id\":0,\"based_on\":1,\"data\":\"\"}]",
+        "x": 650,
+        "y": 300,
+        "wires": [
+            [
+                "1424e8db.ff3427"
+            ]
+        ]
+    },
+    {
+        "id": "1424e8db.ff3427",
+        "type": "function",
+        "z": "7831de18.bde6e",
+        "name": "",
+        "func": "if (msg.payload.targetValue === 1){return{url:\"http://192.168.178.50:2345/start\"}}\nelse if(msg.payload.targetValue ===0){return{url:\"http://192.168.178.50:2345/park\"}}\nelse\nreturn",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 820,
+        "y": 300,
+        "wires": [
+            [
+                "81eee321.6bae8"
+            ]
+        ]
+    },
+    {
+        "id": "81eee321.6bae8",
+        "type": "http request",
+        "z": "7831de18.bde6e",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": false,
+        "url": "",
+        "persist": false,
+        "authType": "",
+        "x": 990,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    }
+]
