@@ -1,0 +1,164 @@
+[
+    {
+        "id": "815a6afab7edaa3f",
+        "type": "tab",
+        "label": "Homee / Valetudo API Call",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "d921b282bd10203e",
+        "type": "change",
+        "z": "815a6afab7edaa3f",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "headers",
+                "pt": "msg",
+                "to": "{\"accept\":\"*/*\",\"Content-Type\":\"application/json\"}",
+                "tot": "json"
+            },
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{\"action\":\"play_test_sound\"}",
+                "tot": "json"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 530,
+        "y": 260,
+        "wires": [
+            [
+                "ea99fc2b64cb47a3"
+            ]
+        ]
+    },
+    {
+        "id": "ea99fc2b64cb47a3",
+        "type": "http request",
+        "z": "815a6afab7edaa3f",
+        "name": "",
+        "method": "PUT",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "http://l10pro/api/v2/robot/capabilities/SpeakerTestCapability",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 730,
+        "y": 260,
+        "wires": [
+            [
+                "92a6327db7155522"
+            ]
+        ]
+    },
+    {
+        "id": "92a6327db7155522",
+        "type": "debug",
+        "z": "815a6afab7edaa3f",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 850,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "b6253971d4296399",
+        "type": "function",
+        "z": "815a6afab7edaa3f",
+        "name": "",
+        "func": "var attribute = msg.payload.attribute;\n\nif (attribute.node_id ===23 && attribute.id ===106 && attribute.target_value ===2 && attribute.state ===4)\n    {\n        return msg;\n    }",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 260,
+        "wires": [
+            [
+                "386f8059ad38e245",
+                "d921b282bd10203e"
+            ]
+        ]
+    },
+    {
+        "id": "bae93afd7966c26e",
+        "type": "homeeApi",
+        "z": "815a6afab7edaa3f",
+        "homee": "",
+        "name": "homeeApi",
+        "messageTypeFilter": [
+            "attribute"
+        ],
+        "nodeFilter": "",
+        "attributeFilter": "",
+        "x": 140,
+        "y": 260,
+        "wires": [
+            [
+                "b6253971d4296399",
+                "5a7accf0546fa65b"
+            ]
+        ]
+    },
+    {
+        "id": "386f8059ad38e245",
+        "type": "debug",
+        "z": "815a6afab7edaa3f",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 470,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "5a7accf0546fa65b",
+        "type": "debug",
+        "z": "815a6afab7edaa3f",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 250,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "34d9dfecbbd8fcd8",
+        "type": "comment",
+        "z": "815a6afab7edaa3f",
+        "name": "",
+        "info": " - Currently the trigger is a keypress on a Homee device which triggers the soundtest at Valetudo. \n - Filtering only attributes on Homee API.",
+        "x": 420,
+        "y": 200,
+        "wires": []
+    }
+]
